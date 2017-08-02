@@ -56,7 +56,7 @@ extras_require = {
         'sorl-thumbnail>=11.12',
     ],
     'form_builder': [
-        'django-extensions',
+        'django-extensions<1.8.0',
         'html2text>=3.200.3',
         'phonenumbers>=5',
     ],
