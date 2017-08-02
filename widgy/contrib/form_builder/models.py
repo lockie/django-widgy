@@ -487,7 +487,9 @@ class Form(TabbedContainer, StrDisplayNameMixin, StrictDefaultChildrenMixin, Con
 
     class Meta:
         verbose_name = _('form')
-        verbose_name_plural = _('forms')
+
+        # this is to set the admin page's title to 'Form Submissions'
+        verbose_name_plural = _('form submissions')
 
     def __str__(self):
         return self.name
@@ -931,11 +933,17 @@ class FileUpload(FormField):
             self.storage.get_valid_name(os.path.basename(filename))
         )
 
+    def _save(self, value):
+        filename = self.generate_filename(value.name)
+        filename = self.storage.save(filename, value)
+        self.filename = self.storage.url(filename)
+
     def serialize_value(self, value):
         if value:
-            filename = self.generate_filename(value.name)
-            filename = self.storage.save(filename, value)
-            return self.storage.url(filename)
+            if not hasattr(self, 'filename'):
+                self._save(value)
+
+            return self.filename
         else:
             return ''
 
@@ -955,7 +963,7 @@ class FormSubmission(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     form_node = models.ForeignKey(Node, on_delete=models.PROTECT, related_name='form_submissions')
-    form_ident = models.CharField(max_length=Form._meta.get_field('ident', False).max_length)
+    form_ident = models.CharField(max_length=Form._meta.get_field('ident').max_length)
 
     class FormSubmissionQuerySet(QuerySet):
         def get_formfield_labels(self):
@@ -1055,7 +1063,7 @@ class FormValue(models.Model):
     field_node = models.ForeignKey(Node, on_delete=models.SET_NULL, null=True)
     field_name = models.CharField(max_length=255)
     field_ident = models.CharField(
-        max_length=FormField._meta.get_field('ident', False).max_length)
+        max_length=FormField._meta.get_field('ident').max_length)
 
     value = models.TextField()
 
