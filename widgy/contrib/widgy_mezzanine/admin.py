@@ -29,6 +29,7 @@ from mezzanine.core.models import (CONTENT_STATUS_PUBLISHED,
 
 from widgy.forms import WidgyFormMixin, VersionedWidgyWidget
 from widgy.contrib.widgy_mezzanine import get_widgypage_model
+from widgy.contrib.widgy_mezzanine.models import UndeletePage
 from widgy.contrib.widgy_mezzanine.views import ClonePageView, UnpublishView
 from widgy.contrib.page_builder.admin import CalloutAdmin
 from widgy.contrib.page_builder.models import Callout
@@ -265,21 +266,6 @@ class UndeletePageAdminMixin(object):
 
 class UndeletePageAdmin(UndeletePageAdminMixin, WidgyPageAdmin):
     pass
-
-
-class UndeletePage(WidgyPage):
-    """
-    A proxy for WidgyPage, just to allow registering WidgyPage twice with a
-    different ModelAdmin.
-    """
-    class Meta:
-        proxy = True
-        app_label = WidgyPage._meta.app_label
-        verbose_name = _('restore deleted page')
-
-    def __init__(self, *args, **kwargs):
-        self._meta = super(UndeletePage, self)._meta
-        return super(UndeletePage, self).__init__(*args, **kwargs)
 
 
 admin.site.register(WidgyPage, WidgyPageAdmin)

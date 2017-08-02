@@ -136,6 +136,21 @@ class PathRoot(models.Transform):
 models.Field.register_lookup(PathRoot)
 
 
+class UndeletePage(WidgyPage):
+    """
+    A proxy for WidgyPage, just to allow registering WidgyPage twice with a
+    different ModelAdmin.
+    """
+    class Meta:
+        proxy = True
+        app_label = WidgyPage._meta.app_label
+        verbose_name = _('restore deleted page')
+
+    def __init__(self, *args, **kwargs):
+        self._meta = super(UndeletePage, self)._meta
+        return super(UndeletePage, self).__init__(*args, **kwargs)
+
+
 # Django < 1.9 workaround. (Remove this when support for Django < 1.9 is dropped)
 def _create_permissions_for_mezzaninecalloutwidget(sender, **kwargs):
     """
